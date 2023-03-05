@@ -1,16 +1,18 @@
 import {
   Column,
   Entity,
-  JoinColumn,
-  JoinTable,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Tree,
+  TreeChildren,
+  TreeParent,
 } from 'typeorm';
 
 import { Role } from '../../roles/entities/role.entity';
 import { RoleEnum } from '../../roles/enums/role.enum';
 
 @Entity()
+@Tree('materialized-path')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -24,14 +26,17 @@ export class User {
   @Column()
   password: string;
 
-  @ManyToOne(() => User, (user) => user.id, { nullable: true })
-  boss: number;
+  @TreeParent()
+  boss: User;
 
   @ManyToOne(() => Role, (role) => role.id, { nullable: false })
   role: number;
 
   @Column({ type: 'enum', enum: RoleEnum, nullable: false })
   role_id: RoleEnum;
+
+  @TreeChildren()
+  user: User[];
 
   @Column({ nullable: true })
   boss_id: number;

@@ -25,7 +25,7 @@ export class UsersService {
     private readonly roleService: RolesService,
     private readonly passwordHelper: PasswordHelper,
   ) {}
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<any> {
     const { id: roleId } = await this.roleService.findByValue(
       createUserDto.role,
     );
@@ -41,6 +41,9 @@ export class UsersService {
     const hashedPass = await this.passwordHelper.hashPass(
       createUserDto.password,
     );
+    const boss = await this.userRepository.findOne({
+      where: { id: createUserDto.boss },
+    });
 
     if (!createUserDto.boss && createUserDto.role !== RoleEnum.Administrator)
       createUserDto.boss = admin.id;
@@ -52,29 +55,31 @@ export class UsersService {
         throw new UnauthorizedException({
           message: `User with id: ${createUserDto.boss} is not a boss`,
         });
+      return this.userRepository.save({
+        ...createUserDto,
+        password: hashedPass,
+        role: roleId,
+        boss,
+        role_id: createUserDto.role,
+        boss_id: createUserDto.boss,
+      });
     }
 
     return this.userRepository.save({
       ...createUserDto,
       password: hashedPass,
       role: roleId,
+      boss,
       role_id: createUserDto.role,
       boss_id: createUserDto.boss,
     });
   }
 
-  async findAll(req: IRequest): Promise<User[]> {
+  async findAll(req: IRequest): Promise<User> {
     const user = req.user;
-    if (user.role_id === RoleEnum.Administrator) {
-      return this.userRepository.find();
-    } else if (user.role_id === RoleEnum.Boss) {
-      const users = await this.userRepository.find({
-        where: { boss_id: user.id },
-      });
-      return [user, ...users];
-    } else {
-      return [user];
-    }
+    return this.userRepository.manager
+      .getTreeRepository(User)
+      .findDescendantsTree(user);
   }
 
   async findById(id: number): Promise<User> {
@@ -106,7 +111,7 @@ export class UsersService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    await this.userRepository.update({ id: userId }, { boss: newBossId });
+    await this.userRepository.update({ id: userId }, { boss });
     return this.userRepository.findOne({ where: { id: userId } });
   }
 }

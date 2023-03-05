@@ -27,8 +27,11 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException({ message: 'User not found' });
     }
-    const isPass = this.passwordHelper.comparePas(data.password, user.password);
-    if (isPass) {
+    const isPass = await this.passwordHelper.comparePas(
+      data.password,
+      user.password,
+    );
+    if (!isPass) {
       throw new BadRequestException({ message: 'Wrong password' });
     }
     const { email, name, id, role_id } = user;

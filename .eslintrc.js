@@ -32,7 +32,7 @@ module.exports = {
       'ignoreMemberSort': false,
       'memberSyntaxSortOrder': ['none', 'all', 'multiple', 'single'],
       'allowSeparatedGroups': false
-    }],
+    }]
   },
   ignorePatterns: ['.eslintrc.js']
 };
