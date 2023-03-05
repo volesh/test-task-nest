@@ -27,6 +27,15 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
+    const isExist = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
+    });
+    if (isExist) {
+      throw new HttpException(
+        { message: 'User already exist' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const { id: roleId } = await this.roleService.findByValue(
       createUserDto.role,
     );
