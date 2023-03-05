@@ -7,14 +7,13 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { BearerStrategy } from '../auth/bearer.strategy';
 import { IRequest } from '../interfaces/request.interface';
 import { ChangeUsersBossDto } from './dto/change-users-boss.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
-import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
 import { UsersService } from './users.service';
 
@@ -31,7 +30,7 @@ export class UsersController {
 
   @ApiResponse({ type: User })
   @Get()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard())
   getAll(@Req() req: IRequest): Promise<User[] | User> {
     return this.usersService.findAll(req);
   }
@@ -39,7 +38,7 @@ export class UsersController {
   @ApiResponse({ type: User })
   @Patch()
   @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard())
   changeBoss(
     @Req() req: IRequest,
     @Body() changeUsersBossDto: ChangeUsersBossDto,

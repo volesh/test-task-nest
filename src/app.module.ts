@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
@@ -14,7 +15,6 @@ import { UsersModule } from './users/users.module';
   imports: [
     UsersModule,
     RolesModule,
-    JwtModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.HOST || 'localhost',
@@ -28,6 +28,6 @@ import { UsersModule } from './users/users.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, JwtService],
+  providers: [AppService],
 })
 export class AppModule {}

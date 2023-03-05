@@ -3,8 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-http-bearer';
 
-import { User } from '../users/entities/user.entity';
-import { UsersService } from '../users/users.service';
+import { User } from './entities/user.entity';
+import { UsersService } from './users.service';
 
 @Injectable()
 export class BearerStrategy extends PassportStrategy(Strategy) {
@@ -18,9 +18,9 @@ export class BearerStrategy extends PassportStrategy(Strategy) {
   async validate(token: string): Promise<any> {
     let user: User;
     try {
-      const payload = await this.jwtService.verifyAsync(token);
+      const decode = (await this.jwtService.decode(token)) as User;
 
-      user = (await this.userService.findById(payload.id)) as User;
+      user = await this.userService.findById(decode.id);
     } catch (e) {
       console.log(
         new Date().toISOString(),
