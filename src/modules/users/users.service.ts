@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { writeHeapSnapshot } from 'v8';
 
 import { PasswordHelper } from '../../common/helpers/password.helper';
 import { IRequest } from '../../common/interfaces/request.interface';
@@ -100,17 +101,25 @@ export class UsersService {
     const boss = await this.userRepository.findOne({
       where: { id: newBossId },
     });
-    if (
-      boss?.role_id !== RoleEnum.Boss &&
-      boss?.role_id !== RoleEnum.Administrator &&
-      !boss
-    ) {
+    if (!boss) {
       throw new HttpException(
-        { message: `User with id ${newBossId} can't be a boss` },
-        HttpStatus.BAD_REQUEST,
+        { message: `User with id ${newBossId} not found` },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    if (boss.role_id !== RoleEnum.Boss) {
+      await this.userRepository.update(
+        { id: newBossId },
+        { role_id: RoleEnum.Boss },
       );
     }
     await this.userRepository.update({ id: userId }, { boss });
+    const subordinates = await this.userRepository.find({
+      where: { boss_id: id },
+    });
+    if (!subordinates) {
+      await this.userRepository.update({ id }, { role_id: RoleEnum.Regular });
+    }
     return this.userRepository.findOne({ where: { id: userId } });
   }
 }
