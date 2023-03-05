@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
+import { BearerStrategy } from '../auth/bearer.strategy';
 import { IRequest } from '../interfaces/request.interface';
 import { ChangeUsersBossDto } from './dto/change-users-boss.dto';
 import { CreateUserDto } from './dto/create-user.dto';
