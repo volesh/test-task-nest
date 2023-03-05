@@ -6,7 +6,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 
-import { IRequest } from '../../interfaces/request.interface';
+import { IRequest } from '../../../common/interfaces/request.interface';
 
 Injectable();
 export class AuthGuard implements CanActivate {

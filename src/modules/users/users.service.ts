@@ -8,8 +8,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { PasswordHelper } from '../helpers/password.helper';
-import { IRequest } from '../interfaces/request.interface';
+import { PasswordHelper } from '../../common/helpers/password.helper';
+import { IRequest } from '../../common/interfaces/request.interface';
 import { Role } from '../roles/entities/role.entity';
 import { RoleEnum } from '../roles/enums/role.enum';
 import { RolesService } from '../roles/roles.service';
@@ -101,8 +101,8 @@ export class UsersService {
       where: { id: newBossId },
     });
     if (
-      boss.role_id !== RoleEnum.Boss &&
-      boss.role_id !== RoleEnum.Administrator &&
+      boss?.role_id !== RoleEnum.Boss &&
+      boss?.role_id !== RoleEnum.Administrator &&
       !boss
     ) {
       throw new HttpException(

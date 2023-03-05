@@ -10,7 +10,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { IRequest } from '../interfaces/request.interface';
+import { IRequest } from '../../common/interfaces/request.interface';
 import { ChangeUsersBossDto } from './dto/change-users-boss.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
@@ -24,8 +24,8 @@ export class UsersController {
 
   @ApiResponse({ type: User })
   @Post()
-  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.usersService.create(createUserDto);
+  async create(@Body() newUserInfo: CreateUserDto): Promise<User> {
+    return this.usersService.create(newUserInfo);
   }
 
   @ApiResponse({ type: User })
@@ -36,13 +36,13 @@ export class UsersController {
   }
 
   @ApiResponse({ type: User })
-  @Patch()
+  @Patch('/changeBoss')
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard())
   changeBoss(
     @Req() req: IRequest,
-    @Body() changeUsersBossDto: ChangeUsersBossDto,
+    @Body() changeUser: ChangeUsersBossDto,
   ): Promise<User> {
-    return this.usersService.changeBoss(changeUsersBossDto, req.user.id);
+    return this.usersService.changeBoss(changeUser, req.user.id);
   }
 }

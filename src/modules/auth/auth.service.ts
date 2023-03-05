@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as Jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
 
-import { PasswordHelper } from '../helpers/password.helper';
+import { PasswordHelper } from '../../common/helpers/password.helper';
 import { User } from '../users/entities/user.entity';
 import { LoginDto } from './dto/login.dto';
 
