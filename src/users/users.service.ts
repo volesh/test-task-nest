@@ -25,49 +25,39 @@ export class UsersService {
     private readonly roleService: RolesService,
     private readonly passwordHelper: PasswordHelper,
   ) {}
-  async create(createUserDto: CreateUserDto): Promise<any> {
+
+  async create(createUserDto: CreateUserDto): Promise<User> {
     const { id: roleId } = await this.roleService.findByValue(
       createUserDto.role,
     );
-
     const admin = await this.userRepository.findOne({
       where: { role_id: RoleEnum.Administrator },
     });
-    if (!admin && createUserDto.role !== RoleEnum.Administrator)
+    if (!admin && createUserDto.role !== RoleEnum.Administrator) {
       throw new BadRequestException({ message: 'create admin first' });
-    if (admin && createUserDto.role === RoleEnum.Administrator)
+    }
+    if (admin && createUserDto.role === RoleEnum.Administrator) {
       throw new BadRequestException({ message: 'admin already exists' });
-
-    const hashedPass = await this.passwordHelper.hashPass(
+    }
+    const hashedPassword = await this.passwordHelper.hashPass(
       createUserDto.password,
     );
-    const boss = await this.userRepository.findOne({
-      where: { id: createUserDto.boss },
-    });
-
-    if (!createUserDto.boss && createUserDto.role !== RoleEnum.Administrator)
+    let boss;
+    if (!createUserDto.boss && createUserDto.role !== RoleEnum.Administrator) {
       createUserDto.boss = admin.id;
-    else if (createUserDto.boss) {
-      const boss = await this.userRepository.findOne({
+    } else if (createUserDto.boss) {
+      boss = await this.userRepository.findOne({
         where: { id: createUserDto.boss },
       });
-      if (![RoleEnum.Boss, RoleEnum.Administrator].includes(boss.role_id))
+      if (![RoleEnum.Boss, RoleEnum.Administrator].includes(boss.role_id)) {
         throw new UnauthorizedException({
           message: `User with id: ${createUserDto.boss} is not a boss`,
         });
-      return this.userRepository.save({
-        ...createUserDto,
-        password: hashedPass,
-        role: roleId,
-        boss,
-        role_id: createUserDto.role,
-        boss_id: createUserDto.boss,
-      });
+      }
     }
-
     return this.userRepository.save({
       ...createUserDto,
-      password: hashedPass,
+      password: hashedPassword,
       role: roleId,
       boss,
       role_id: createUserDto.role,
